@@ -12,7 +12,8 @@ export const maxDuration = 60;
 function hasValidSecret(req: NextRequest): boolean {
   const secret = getEnv().REFRESH_SECRET;
   const auth = req.headers.get("authorization");
-  return auth === `Bearer ${secret}` || req.headers.get("x-refresh-secret") === secret;
+  const querySecret = req.nextUrl.searchParams.get("secret");
+  return auth === `Bearer ${secret}` || req.headers.get("x-refresh-secret") === secret || querySecret === secret;
 }
 
 /**
