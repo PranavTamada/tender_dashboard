@@ -1,0 +1,99 @@
+// Tender Intelligence Dashboard — Prisma schema
+// Single source: BidEasy / tenders.infralens.in (aggregates 50+ portals).
+// Datasource: Supabase Postgres. DATABASE_URL = pooled (pgBouncer, :6543),
+// DIRECT_URL = direct (:5432, used by migrations).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum MatchType {
+  KEYWORD
+  DEPARTMENT
+}
+
+enum TenderStatus {
+  OPEN
+  CLOSING_SOON
+  CLOSED
+  UNKNOWN
+}
+
+/// A normalized tender from the infralens aggregator.
+model Tender {
+  id              String       @id @default(cuid())
+  /// Origin portal within the aggregator (e.g. "NIC Odisha", "GeM", "CPPP").
+  portal          String       @default("infralens")
+  /// Government level: Central / State / PSU / etc.
+  level           String?
+  /// Aggregator's own tender slug/reference (last segment of the detail URL).
+  sourceTenderId  String
+  title           String
+  description     String?      @db.Text
+  organization    String?
+  department      String?
+  /// Sector group, e.g. "Posts, Telecom & IT", "Railways & Metro".
+  sector          String?
+  /// Work type, e.g. "Maintenance / O&M", "Other / Unclassified".
+  workType        String?
+  state           String?
+  city            String?
+  publishedDate   DateTime?
+  closingDate     DateTime?
+  estimatedValue  Decimal?     @db.Decimal(20, 2)
+  /// Human value band from the source, e.g. "₹2,500 Cr+".
+  valueBand       String?
+  currency        String       @default("INR")
+  url             String?
+  status          TenderStatus @default(UNKNOWN)
+  matchType       MatchType
+  matchedKeywords String[]     @default([])
+  /// User workflow: marked as visited (moves it to the Visited section).
+  visited         Boolean      @default(false)
+  visitedAt       DateTime?
+  /// Stable fingerprint for cross-run de-duplication.
+  dedupeHash      String       @unique
+  rawData         Json?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([portal])
+  @@index([matchType])
+  @@index([department])
+  @@index([sector])
+  @@index([state])
+  @@index([closingDate])
+  @@index([status])
+  @@index([visited])
+}
+
+/// Blocklist of permanently-deleted tenders (by dedupe hash) so a live
+/// refresh never re-adds something the user deleted on purpose.
+model DeletedTender {
+  dedupeHash String   @id
+  title      String?
+  deletedAt  DateTime @default(now())
+}
+
+/// One row per refresh execution — powers health & "last refresh" indicators.
+model CollectorRun {
+  id           String   @id @default(cuid())
+  success      Boolean
+  usedFallback Boolean  @default(false)
+  fetched      Int      @default(0)
+  matched      Int      @default(0)
+  inserted     Int      @default(0)
+  updated      Int      @default(0)
+  durationMs   Int      @default(0)
+  error        String?  @db.Text
+  startedAt    DateTime @default(now())
+  finishedAt   DateTime @default(now())
+
+  @@index([startedAt])
+}

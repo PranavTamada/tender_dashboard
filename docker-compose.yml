@@ -1,0 +1,56 @@
+# Local / self-hosted full stack: app + Postgres + Redis.
+# For Vercel/Netlify you do NOT need this — use Neon/Vercel Postgres + Upstash.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tenders
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "60", "1"]
+    volumes:
+      - redisdata:/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/tenders?schema=public
+      DIRECT_URL: postgresql://postgres:postgres@postgres:5432/tenders?schema=public
+      # Self-hosted Redis isn't Upstash-compatible (no REST). Leave the Upstash
+      # vars empty to use the in-memory cache, or point them at an Upstash proxy.
+      REFRESH_SECRET: ${REFRESH_SECRET:-change-me-to-a-long-random-string}
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      COLLECTORS_USE_SEED_ONLY: "false"
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    # Run migrations then start the server.
+    command: >
+      sh -c "npx prisma migrate deploy && node server.js"
+
+volumes:
+  pgdata:
+  redisdata:
