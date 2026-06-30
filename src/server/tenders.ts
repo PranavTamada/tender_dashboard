@@ -15,9 +15,6 @@ function buildWhere(q: TenderQuery): Prisma.TenderWhereInput {
   if (q.portal) where.portal = { contains: q.portal, mode: "insensitive" };
   if (q.sector) where.sector = { contains: q.sector, mode: "insensitive" };
   if (q.state) where.state = { contains: q.state, mode: "insensitive" };
-  if (q.department) {
-    where.department = { contains: q.department, mode: "insensitive" };
-  }
   if (q.keyword) where.matchedKeywords = { has: q.keyword };
   if (q.visited !== undefined) where.visited = q.visited;
   if (q.minValue != null) where.estimatedValue = { gte: q.minValue };

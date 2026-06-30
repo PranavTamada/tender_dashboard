@@ -29,7 +29,7 @@ export function Dashboard() {
 
   const debouncedQ = useDebounce(filters.q ?? "", 350);
   const debouncedText = useDebounce(
-    `${filters.state ?? ""}|${filters.sector ?? ""}|${filters.department ?? ""}`,
+    `${filters.state ?? ""}|${filters.sector ?? ""}`,
     350,
   );
   // Main list excludes visited tenders.

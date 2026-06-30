@@ -114,10 +114,6 @@ export function FiltersBar({ filters, onChange, onClear, resultCount }: FiltersB
             <Input placeholder="e.g. Telecom & IT" value={filters.sector ?? ""} onChange={(e) => onChange({ sector: e.target.value })} />
           </Field>
 
-          <Field label="Department">
-            <Input placeholder="e.g. ITE&C" value={filters.department ?? ""} onChange={(e) => onChange({ department: e.target.value })} />
-          </Field>
-
           <Field label="Closing Before">
             <Input
               type="date"

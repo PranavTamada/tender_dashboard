@@ -80,7 +80,6 @@ export const tenderQuerySchema = z.object({
   portal: z.string().trim().max(120).optional(),
   sector: z.string().trim().max(120).optional(),
   state: z.string().trim().max(120).optional(),
-  department: z.string().trim().max(200).optional(),
   matchType: z.enum(MATCH_TYPES).optional(),
   status: z.enum(TENDER_STATUSES).optional(),
   keyword: z.string().trim().max(100).optional(),

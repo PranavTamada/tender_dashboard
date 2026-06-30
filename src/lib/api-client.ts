@@ -10,7 +10,6 @@ export interface TenderFilters {
   portal?: string;
   sector?: string;
   state?: string;
-  department?: string;
   matchType?: string;
   status?: string;
   keyword?: string;
