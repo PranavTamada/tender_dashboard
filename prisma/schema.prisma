@@ -9,8 +9,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("NEON_DATABASE_URL")
-  directUrl = env("NEON_DATABASE_URL_UNPOOLED")
+  url       = env("Neon_POSTGRES_PRISMA_URL")
+  directUrl = env("Neon_POSTGRES_URL_NON_POOLING")
 }
 
 enum MatchType {
