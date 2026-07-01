@@ -128,6 +128,10 @@ export class InfralensClient {
    */
   async search(query: string, limit = 100): Promise<InfralensResult[]> {
     await this.ensureToken();
+    // Space out requests to avoid tripping infralens's rate limiter (which
+    // returns empty result sets rather than an error when hammered).
+    const rl = getEnv().COLLECTOR_RATE_LIMIT_MS;
+    if (rl > 0) await sleep(rl);
     const url = `${BASE}/api/search?q=${encodeURIComponent(query)}&limit=${limit}`;
     const maxRetries = getEnv().COLLECTOR_MAX_RETRIES;
 

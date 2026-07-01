@@ -109,7 +109,7 @@ export class InfralensCollector {
       // concurrency. A single failing/slow query degrades to [] instead of
       // aborting the whole run; we only fall back to seed if EVERY query fails.
       await this.client.warm();
-      const perQuery = await pool(QUERIES, 5, async (query) => {
+      const perQuery = await pool(QUERIES, 3, async (query) => {
         try {
           const results = await this.client.search(query.q, 100);
           return { query, results, ok: true };
