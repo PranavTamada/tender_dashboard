@@ -126,7 +126,7 @@ export class InfralensClient {
    * Run a single search query with transient-error retries (timeouts, network,
    * 5xx) and one PoW re-solve on `token_required`.
    */
-  async search(query: string, limit = 50): Promise<InfralensResult[]> {
+  async search(query: string, limit = 100): Promise<InfralensResult[]> {
     await this.ensureToken();
     const url = `${BASE}/api/search?q=${encodeURIComponent(query)}&limit=${limit}`;
     const maxRetries = getEnv().COLLECTOR_MAX_RETRIES;
