@@ -5,10 +5,12 @@ name: Collect tenders
 # GitHub-hosted runners may or may not be blocked — workflow_dispatch lets us
 # test a single run before trusting the schedule.
 
+# NOTE: GitHub-hosted runners are IP-blocked by infralens (returns an HTML
+# block page, not JSON), so the schedule is disabled — scheduled runs only
+# wrote seed fallback data. Collection runs from a non-blocked IP instead
+# (local Windows Task Scheduler). Kept for manual testing only.
 on:
-  schedule:
-    - cron: "*/15 * * * *" # every 15 minutes (UTC; GitHub may delay under load)
-  workflow_dispatch: {} # manual "Run workflow" button for testing
+  workflow_dispatch: {}
 
 concurrency:
   group: collect
