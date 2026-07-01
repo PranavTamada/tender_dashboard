@@ -23,15 +23,20 @@ export interface KeywordGroup {
 }
 
 export const KEYWORD_GROUPS: KeywordGroup[] = [
-  { label: "App", terms: ["app"] },
+  // Bare "app" collided with "APP" (Atactic Polypropylene waterproofing
+  // membrane); require software-app phrasing instead.
+  { label: "App", terms: ["mobile app", "web app", "app development", "software application", "application software"] },
   { label: "Website", terms: ["website", "web site"] },
   { label: "Chatbot", terms: ["chatbot", "chat bot"] },
   { label: "Mobile App", terms: ["mobile app", "mobile application"] },
   { label: "Website Widgets", terms: ["website widget", "web widget"] },
-  { label: "AI", terms: ["ai"] },
+  // Bare "ai" / "ml" collided with volume units and stray tokens (e.g. "500
+  // mL"); require AI/ML-qualified phrasing. Full phrases live in their own
+  // groups below.
+  { label: "AI", terms: ["ai based", "ai-based", "ai powered", "ai-powered", "ai enabled", "ai-enabled", "ai solution", "ai model", "ai tool", "ai system", "ai/ml"] },
   { label: "Artificial Intelligence", terms: ["artificial intelligence"] },
   { label: "Machine Learning", terms: ["machine learning"] },
-  { label: "ML", terms: ["ml"] },
+  { label: "ML", terms: ["machine learning", "ml model", "ml algorithm", "ml-based", "ml based", "ai/ml"] },
   {
     label: "Conversational Chatbot",
     terms: ["conversational chatbot", "conversational ai", "conversational bot"],
