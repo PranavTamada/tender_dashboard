@@ -1,0 +1,39 @@
+name: Collect tenders
+
+# Fetches live tenders from infralens and writes them to Neon.
+# Runs off-Vercel because infralens blocks datacenter IPs on Vercel's edge;
+# GitHub-hosted runners may or may not be blocked — workflow_dispatch lets us
+# test a single run before trusting the schedule.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # every 15 minutes (UTC; GitHub may delay under load)
+  workflow_dispatch: {} # manual "Run workflow" button for testing
+
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # One secret drives all three — the pooled Neon URL works for the
+      # collector's runtime upserts (no migrations run here).
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      Neon_POSTGRES_PRISMA_URL: ${{ secrets.DATABASE_URL }}
+      Neon_POSTGRES_URL_NON_POOLING: ${{ secrets.DATABASE_URL }}
+      COLLECTORS_USE_SEED_ONLY: "false"
+      COLLECTOR_TIMEOUT_MS: "30000"
+      COLLECTOR_MAX_RETRIES: "3"
+      LOG_LEVEL: "info"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run collect
